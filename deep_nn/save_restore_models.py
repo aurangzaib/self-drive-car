@@ -71,7 +71,7 @@ with tf.Session() as sess:
 
 with tf.Session() as sess:
     # without restoring the trained model from disk
-    # note the accuracy is very low
+    # note the low accuracy
     sess.run(init)
     test_accuracy = sess.run(accuracy, feed_dict={
         features: test_features,
@@ -80,7 +80,8 @@ with tf.Session() as sess:
     print("accuracy w/o restore: {:2.3f}%".format(test_accuracy * 100))
 
 with tf.Session() as sess:
-    # restore the optimize weights, bias and model
+    # restore the optimized weights, bias and model
+    # note the high accuracy
     saver.restore(sess, save_file)
     test_accuracy = sess.run(accuracy, feed_dict={
         features: test_features,

@@ -3,7 +3,8 @@ import tensorflow as tf
 from miniflow.helper_functions import get_batches
 import numpy as np
 
-n_input, n_classes = 784, 10  # 784 --> 28x28 image shape
+dim = 28
+n_input, n_classes = dim * dim, 10  # 784 --> 28x28 image shape
 n_hidden_layer = 256
 mnist = input_data.read_data_sets('/tmp/tensorflow/', one_hot=True, reshape=False)
 learning_rate = tf.placeholder(tf.float32)
@@ -18,7 +19,7 @@ bias = {
     'output_layer': tf.Variable(tf.random_normal([n_classes]))
 }
 # matrix of 28x28
-x = tf.placeholder("float", [None, 28, 28, 1])  # --> features
+x = tf.placeholder("float", [None, dim, dim, 1])  # --> features
 y = tf.placeholder("float", [None, n_classes])  # --> labels
 # reshape to vector of 1x784
 x_flat = tf.reshape(x, [-1, n_input])

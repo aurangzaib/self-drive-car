@@ -84,7 +84,9 @@ with tf.Session() as sess:
         for i in range(n_batches):
             x, y = mnist.train.next_batch(batch_size)
             sess.run(optimizer, feed_dict={
-                learning_rate: learn_rate, features: x, labels: y
+                learning_rate: learn_rate,
+                features: x,
+                labels: y
             })
         if e % 10 == 0:
             epoch_stats(e, sess, x, y)
