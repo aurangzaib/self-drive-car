@@ -1,6 +1,5 @@
 # https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf
 import tensorflow as tf
-from miniflow.helper_functions import get_batches
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 

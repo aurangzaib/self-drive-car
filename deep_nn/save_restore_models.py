@@ -1,7 +1,6 @@
 from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
 import numpy as np
-from miniflow.helper_functions import get_batches
 
 # remove previous tensors and operations
 tf.reset_default_graph()

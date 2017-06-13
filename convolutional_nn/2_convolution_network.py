@@ -12,7 +12,7 @@ def conv2d(data, w, b, stride=1):
     find activation function and activations
     """
     # convolution
-    data = tf.nn.conv2d(data, w, strides=[1, stride, stride, 1], padding='SAME')
+    data = tf.nn.conv2d(data, filter=w, strides=[1, stride, stride, 1], padding='SAME')
     # add bias
     data = tf.nn.bias_add(data, b)
     # find activations

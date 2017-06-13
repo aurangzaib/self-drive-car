@@ -1,4 +1,3 @@
-from miniflow.helper_functions import get_batches
 import tensorflow as tf
 
 """
