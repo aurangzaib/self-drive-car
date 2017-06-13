@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def LeNet(x):
+def LeNet(_x_):
     mu = 0
     sd = 0.1
     w = {
@@ -23,14 +23,13 @@ def LeNet(x):
         'fc2': tf.Variable(tf.truncated_normal([84], mean=mu, stddev=sd)),
         'out': tf.Variable(tf.truncated_normal([10], mean=mu, stddev=sd))
     }
-
     st = [1, 1, 1, 1]
     padding = 'VALID'
     k = 2
     pool_st = [1, k, k, 1]
     pool_k = [1, k, k, 1]
     # Layer 1 -- convolution layer:
-    conv1 = tf.nn.conv2d(x, filter=w['c1'], strides=st, padding=padding)
+    conv1 = tf.nn.conv2d(_x_, filter=w['c1'], strides=st, padding=padding)
     conv1 = tf.nn.bias_add(conv1, bias=b['c1'])
     conv1 = tf.nn.relu(conv1)
     conv1 = tf.nn.max_pool(conv1, ksize=pool_k, strides=pool_st, padding=padding)
@@ -47,7 +46,7 @@ def LeNet(x):
     # Layer 4 -- full connected layer:
     fc2 = tf.add(tf.matmul(fc1, w['fc2']), b['fc2'])
     fc2 = tf.nn.relu(fc2)
-    # Layer 5 -- output layer:
+    # Layer 5 -- fully connected layer:
     out = tf.add(tf.matmul(fc2, w['out']), b['out'])
 
     n_parameters(conv1, conv2, fc1, fc2, out)
@@ -55,16 +54,17 @@ def LeNet(x):
 
 
 def n_parameters(layer1, layer2, layer3, layer4, layer5):
+    # parameter sharing is assumed
     dim = layer1.get_shape()[3]
     layer1_params = dim * (5 * 5 * 1) + dim * 1
     dim = layer2.get_shape()[3]
     layer2_params = dim * (5 * 5 * 6) + dim * 1
     dim = layer3.get_shape()[1]
-    layer3_params = dim * (400) + dim * 1
+    layer3_params = dim * 400 + dim * 1
     dim = layer4.get_shape()[1]
-    layer4_params = dim * (120) + dim * 1
+    layer4_params = dim * 120 + dim * 1
     dim = layer5.get_shape()[1]
-    layer5_params = dim * (84) + dim * 1
+    layer5_params = dim * 84 + dim * 1
     total_params = layer1_params + layer2_params + layer3_params + layer4_params + layer5_params
 
     print("Layer 1 Params: {}".format(layer1_params))
@@ -75,53 +75,56 @@ def n_parameters(layer1, layer2, layer3, layer4, layer5):
     print("Total Params:   {}".format(total_params))
 
 
-# dataset
-mnist = input_data.read_data_sets('MNIST_data/', reshape=False)
-X_train, y_train = mnist.train.images, mnist.train.labels
-X_validation, y_validation = mnist.validation.images, mnist.validation.labels
-X_test, y_test = mnist.test.images, mnist.test.labels
-# border padding
-border = ((0, 0), (2, 2), (2, 2), (0, 0))
-X_train = np.pad(X_train, border, 'constant')
-X_validation = np.pad(X_validation, border, 'constant')
-X_test = np.pad(X_test, border, 'constant')
-# shuffle
-X_train, y_train = shuffle(X_train, y_train)
-# placeholders
-x = tf.placeholder(tf.float32, [None, 32, 32, 1])
-y = tf.placeholder(tf.int32, [None])
-one_hot_y = tf.one_hot(y, 10)
-# network parameters
-epochs = 10
-batch_size = 128
-learn_rate = 0.01
-
-logits = LeNet(x)
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
-cost = tf.reduce_mean(cross_entropy)
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=learn_rate).minimize(cost)
-correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-init = tf.global_variables_initializer()
-
-with tf.Session() as sess:
-    sess.run(init)
-    for e in range(epochs):
-        X_train, y_train = shuffle(X_train, y_train)
-        batches = get_batches(batch_size, X_train, y_train)
-        for batch_x, batch_y in batches:
-            sess.run(optimizer, feed_dict={
-                x: batch_x,
-                y: batch_y
+def ConvNet_using_LeNet():
+    # dataset
+    mnist = input_data.read_data_sets('MNIST_data/', reshape=False)
+    x_train, y_train = mnist.train.images, mnist.train.labels
+    x_validation, y_validation = mnist.validation.images, mnist.validation.labels
+    x_test, y_test = mnist.test.images, mnist.test.labels
+    # border padding
+    border = ((0, 0), (2, 2), (2, 2), (0, 0))
+    x_train = np.pad(x_train, border, 'constant')
+    x_validation = np.pad(x_validation, border, 'constant')
+    x_test = np.pad(x_test, border, 'constant')
+    # shuffle
+    x_train, y_train = shuffle(x_train, y_train)
+    # placeholders
+    x = tf.placeholder(tf.float32, [None, 32, 32, 1])
+    y = tf.placeholder(tf.int32, [None])
+    one_hot_y = tf.one_hot(y, 10)
+    # network parameters
+    epochs = 10
+    batch_size = 128
+    learn_rate = 0.01
+    # network implementation
+    logits = LeNet(x)
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
+    cost = tf.reduce_mean(cross_entropy)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learn_rate).minimize(cost)
+    correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    # session
+    init = tf.global_variables_initializer()
+    with tf.Session() as sess:
+        sess.run(init)
+        for e in range(epochs):
+            x_train, y_train = shuffle(x_train, y_train)
+            batches = get_batches(batch_size, x_train, y_train)
+            for batch_x, batch_y in batches:
+                sess.run(optimizer, feed_dict={
+                    x: batch_x,
+                    y: batch_y
+                })
+            validation_accuracy = sess.run(accuracy, feed_dict={
+                x: x_validation,
+                y: y_validation
             })
-        validation_accuracy = sess.run(accuracy, feed_dict={
-            x: X_validation,
-            y: y_validation
+            print("{}th epoch accuracy: {:2.3f}%".format(e, validation_accuracy * 100))
+        test_accuracy = sess.run(accuracy, feed_dict={
+            x: x_test,
+            y: y_test
         })
-        print("{}th epoch accuracy: {:2.3f}%".format(e, validation_accuracy * 100))
-    test_accuracy = sess.run(accuracy, feed_dict={
-        x: X_test,
-        y: y_test
-    })
-    print("test accuracy: {:2.3f}%".format(test_accuracy * 100))
+        print("test accuracy: {:2.3f}%".format(test_accuracy * 100))
+
+
+ConvNet_using_LeNet()
