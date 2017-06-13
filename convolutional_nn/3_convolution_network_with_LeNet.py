@@ -6,7 +6,7 @@ from helpers import LeNet
 from sklearn.utils import shuffle
 import tensorflow as tf
 import os
-
+#
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 mnist = input_data.read_data_sets("MNIST_data/", reshape=False)
