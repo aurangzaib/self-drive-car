@@ -48,8 +48,9 @@ def LeNet(_x_):
     fc2 = tf.nn.relu(fc2)
     # Layer 5 -- fully connected layer:
     out = tf.add(tf.matmul(fc2, w['out']), b['out'])
-
+    # parameters in each layer
     n_parameters(conv1, conv2, fc1, fc2, out)
+    # return convolutional neural network
     return out
 
 
@@ -75,21 +76,56 @@ def n_parameters(layer1, layer2, layer3, layer4, layer5):
     print("Total Params:   {}".format(total_params))
 
 
+def train_network(sess, x_train, y_train, batch_size, optimizer, x, y):
+    x_train, y_train = shuffle(x_train, y_train)
+    batches = get_batches(batch_size, x_train, y_train)
+    for batch_x, batch_y in batches:
+        sess.run(optimizer, feed_dict={
+            x: batch_x,
+            y: batch_y
+        })
+
+
+def validate_network(sess, x_validation, y_validation, accuracy, x, y, e):
+    acc = sess.run(accuracy, feed_dict={
+        x: x_validation,
+        y: y_validation
+    })
+    print("{}th epoch accuracy: {:2.3f}%".format(e, acc * 100))
+    return acc
+
+
+def test_network(sess, x_test, y_test, accuracy, x, y):
+    acc = sess.run(accuracy, feed_dict={
+        x: x_test,
+        y: y_test
+    })
+    print("test accuracy: {:2.3f}%".format(acc * 100))
+    return acc
+
+
 def ConvNet_using_LeNet():
     # dataset
     mnist = input_data.read_data_sets('MNIST_data/', reshape=False)
     x_train, y_train = mnist.train.images, mnist.train.labels
     x_validation, y_validation = mnist.validation.images, mnist.validation.labels
     x_test, y_test = mnist.test.images, mnist.test.labels
-    # border padding
-    border = ((0, 0), (2, 2), (2, 2), (0, 0))
+    # length assertion
+    assert (len(x_train) == len(y_train))
+    assert (len(x_validation) == len(y_validation))
+    assert (len(x_test) == len(y_test))
+    # input image shape
+    input_shape = x_train[0].shape[0]  # --> 28*28
+    # border padding --> transforming from 28*28 to 32*32 which LeNet can process
+    padding = int((32 - input_shape) / 2)
+    border = ((0, 0), (padding, padding), (padding, padding), (0, 0))
     x_train = np.pad(x_train, border, 'constant')
     x_validation = np.pad(x_validation, border, 'constant')
     x_test = np.pad(x_test, border, 'constant')
     # shuffle
     x_train, y_train = shuffle(x_train, y_train)
     # placeholders
-    x = tf.placeholder(tf.float32, [None, 32, 32, 1])
+    x = tf.placeholder(tf.float32, [None, 32, 32, 1])  # None allows to later accept any size
     y = tf.placeholder(tf.int32, [None])
     one_hot_y = tf.one_hot(y, 10)
     # network parameters
@@ -99,32 +135,18 @@ def ConvNet_using_LeNet():
     # network implementation
     logits = LeNet(x)
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=one_hot_y)
-    cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=learn_rate).minimize(cost)
-    correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
+    cost = tf.reduce_mean(cross_entropy)  # loss operation
+    optimizer = tf.train.AdamOptimizer(learning_rate=learn_rate).minimize(cost)
+    correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))  # compare with ground truth
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     # session
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
         for e in range(epochs):
-            x_train, y_train = shuffle(x_train, y_train)
-            batches = get_batches(batch_size, x_train, y_train)
-            for batch_x, batch_y in batches:
-                sess.run(optimizer, feed_dict={
-                    x: batch_x,
-                    y: batch_y
-                })
-            validation_accuracy = sess.run(accuracy, feed_dict={
-                x: x_validation,
-                y: y_validation
-            })
-            print("{}th epoch accuracy: {:2.3f}%".format(e, validation_accuracy * 100))
-        test_accuracy = sess.run(accuracy, feed_dict={
-            x: x_test,
-            y: y_test
-        })
-        print("test accuracy: {:2.3f}%".format(test_accuracy * 100))
+            train_network(sess, x_train, y_train, batch_size, optimizer, x, y)
+            validate_network(sess, x_validation, y_validation, accuracy, x, y, e)
+        test_network(sess, x_test, y_test, accuracy, x, y)
 
 
 ConvNet_using_LeNet()
