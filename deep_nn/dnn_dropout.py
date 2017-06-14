@@ -7,7 +7,7 @@ n_input, n_classes, n_hidden_layer = 784, 10, 256  # 784 --> 28x28 image shape
 mnist = input_data.read_data_sets('/tmp/tensorflow/', one_hot=True, reshape=False)
 learning_rate = tf.placeholder(tf.float32)
 batch_size = 128
-epoch = 50
+epoch = 10
 weights = {
     'hidden_layer': tf.Variable(tf.random_normal([n_input, n_hidden_layer])),
     'output_layer': tf.Variable(tf.random_normal([n_hidden_layer, n_classes]))
