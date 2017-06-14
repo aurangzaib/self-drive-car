@@ -4,15 +4,17 @@ def classify_traffic_sign():
     from traffic_sign_classification.visualization import get_data_summary
     from sklearn.utils import shuffle
     import tensorflow as tf
-
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     save_file = './model/lenet'
+
     hyper_params = {
         "mu": 0,
         "stddev": 0.1,
-        "epoch": 10,
+        "epoch": 20,
         "batch_size": 128,
         "rate": 0.001,
-        "dropouts": [1., 1., .7, .3],
+        "dropouts": [.9, .9, .6, .5],
         "test_dropouts": [1., 1., 1., 1.]
     }
     # load data

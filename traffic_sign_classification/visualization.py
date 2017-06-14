@@ -21,7 +21,7 @@ def get_data_summary(x_train, x_validation, x_test, y_train):
     print("Number of testing examples =", n_test)
     print("Image data shape =", image_shape)
 
-    return image_shape[0], image_shape[2], n_classes, n_samples, unique_class_index  # input channels, labels
+    return image_shape[0], image_shape[2], n_classes, n_samples, unique_class_index
 
 
 def visualize_data(x, n_samples, unique_class_indices):

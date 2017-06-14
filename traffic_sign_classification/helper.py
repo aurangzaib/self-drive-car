@@ -34,13 +34,7 @@ def normalizer(x):
     import numpy as np
     x_min = float(np.min(x))
     x_max = float(np.max(x))
-    print("original dimensions: {}, original mean: {}, original std: {}".format(x.shape,
-                                                                                np.mean(x),
-                                                                                np.std(x)))
     x = (x - x_min) / (x_max - x_min)
-    print("normalized dimensions: {}, norm mean: {}, original std: {}".format(x.shape,
-                                                                              np.mean(x),
-                                                                              np.std(x)))
     return x
 
 
