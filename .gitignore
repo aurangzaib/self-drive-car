@@ -101,3 +101,6 @@ ENV/
 .mypy_cache/
 
 .idea/*
+traffic_sign_classification_5/traffic-signs-data/train.p.zip
+traffic_sign_classification_5/traffic-signs-data/transforms.p.zip
+traffic_sign_classification_5/traffic-signs-data/valid.p.zip
