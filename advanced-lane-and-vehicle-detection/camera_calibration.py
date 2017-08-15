@@ -31,9 +31,9 @@ def get_undistorted_image(nx, ny, image, obj_pts, obj_pt, img_pts):
                                          dst=None,
                                          newCameraMatrix=camera_matrix)
         # grayscale
-        __ = cv.cvtColor(undistorted_image, cv.COLOR_BGR2GRAY, dstCn=3)
-        gray_image = np.zeros_like(draw_pts)
-        gray_image[:, :, 0], gray_image[:, :, 1], gray_image[:, :, 2] = __, __, __
+        gray_image = cv.cvtColor(undistorted_image, cv.COLOR_BGR2GRAY, dstCn=3)
+        # gray_image = np.zeros_like(draw_pts)
+        # gray_image[:, :, 0], gray_image[:, :, 1], gray_image[:, :, 2] = __, __, __
         # perspective transform
         offset = 100
         img_size = (gray_image.shape[1], gray_image.shape[0])
@@ -50,7 +50,7 @@ def get_undistorted_image(nx, ny, image, obj_pts, obj_pt, img_pts):
         warped = cv.warpPerspective(gray_image, M, img_size, flags=cv.INTER_LINEAR)
         cv.imshow("original", image)
         cv.imshow("undistorted", gray_image)
-        cv.imshow("undistorted adn transformed", warped)
+        cv.imshow("undistorted and transformed", warped)
         cv.waitKey()
 
 
